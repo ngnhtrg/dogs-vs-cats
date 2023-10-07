@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "dogs-vs-cats"
+version = "0.1.0"
+description = "Project to classify whether images contain either a dog or a cat"
+authors = ["Nguyen Nhat Trung <ngnhtrg@phystech.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.9"
+torch = {url = "https://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp39-cp39-linux_x86_64.whl#sha256=73482a223d577407c45685fde9d2a74ba42f0d8d9f6e1e95c08071dc55c47d7b"}
+torchvision = {url = "https://download.pytorch.org/whl/cpu/torchvision-0.15.2%2Bcpu-cp39-cp39-linux_x86_64.whl#sha256=e1e3988373afa29c813b140dbb5b7a074214813fd0ef97d2538966b9bd8d92d9"}
+numpy = "^1.26.0"
+matplotlib = "^3.8.0"
+tdqm = "^0.0.1"
+torchsummary = "^1.5.1"
+pandas = "^2.1.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
