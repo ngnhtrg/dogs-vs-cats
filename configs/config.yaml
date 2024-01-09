@@ -1,0 +1,14 @@
+train:
+  path_to_train: data/train_11k/
+  model_save: models/resnet.pth
+
+infer:
+  path_to_val: data/val/
+  model_path: models/resnet.pth
+  result_save: results/out.csv
+
+resnet:
+  no_epochs: 1
+  lr: 1e-4
+  weights: DEFAULT
+

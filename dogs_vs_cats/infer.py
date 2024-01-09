@@ -1,19 +1,13 @@
 import os
 
+import hydra
 import pandas as pd
 import torch
+from omegaconf import DictConfig
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from tqdm.auto import tqdm
-
-
-DATA_PATH = os.path.dirname(os.getcwd()) + "/data"
-MODEL_SAVE_PATH = os.path.dirname(os.getcwd()) + "/models"
-RESULT_PATH = os.path.dirname(os.getcwd()) + "/results"
-VAL_PATH = DATA_PATH + "/val/"
-val_imgs = os.listdir(VAL_PATH)
-val_imgs = [VAL_PATH + image_path for image_path in val_imgs]
+from utils import evaluate
 
 
 class CatDogDataset(Dataset):
@@ -37,41 +31,34 @@ class CatDogDataset(Dataset):
         )
 
 
-transform = transforms.Compose(
-    [
-        transforms.Resize((128, 128)),
-        transforms.ToTensor(),
-    ]
-)
+@hydra.main(version_base=None, config_path="../configs", config_name="config")
+def main(cfg: DictConfig) -> None:
+    val_path = cfg["infer"]["path_to_val"]
+    val_imgs = os.listdir(val_path)
+    val_imgs = [val_path + image_path for image_path in val_imgs]
 
-val_dataset = CatDogDataset(val_imgs, transform)
-val_loader = DataLoader(val_dataset, batch_size=16, shuffle=True)
+    transform = transforms.Compose(
+        [
+            transforms.Resize((128, 128)),
+            transforms.ToTensor(),
+        ]
+    )
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    val_dataset = CatDogDataset(val_imgs, transform)
+    val_loader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 
-image_names = []
-image_preds = []
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    img_names = []
+    img_preds = []
 
-def evaluate(model, dataloader):
-    model.eval()
-    total_correct = 0
-    total = 0
-    for image, label, img_name in tqdm(dataloader):
-        image, label = image.to(device), label.to(device)
-        # get prediction
-        preds = model(image).round()
-        correct = (preds == label).sum()
-        total += preds.shape[0]
-        total_correct += correct
-        image_names.extend(list(img_name))
-        image_preds.extend(preds.detach().numpy().astype(int))
-    return total_correct / total
+    model = torch.load(cfg["infer"]["model_path"])
+    accur = evaluate(model, val_loader, img_names, img_preds, device) * 100
+    val_df = pd.DataFrame({"Image Name": img_names, "Prediction": img_preds})
+    val_df = val_df.reset_index(drop=True)
+    val_df.to_csv(cfg["infer"]["result_save"])
+    print(f"Accuracy: {accur.round()}%")
 
 
-model = torch.load(MODEL_SAVE_PATH + "/resnet.pth")
-accuracy = evaluate(model, val_loader) * 100
-val_df = pd.DataFrame({"Image Name": image_names, "Prediction": image_preds})
-val_df = val_df.reset_index(drop=True)
-val_df.to_csv(RESULT_PATH + "/out.csv")
-print(f"Accuracy: {accuracy.round()}%")
+if __name__ == "__main__":
+    main()
