@@ -6,15 +6,37 @@ authors = ["Nguyen Nhat Trung <ngnhtrg@phystech.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "~3.9"
-torch = {url = "https://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp39-cp39-linux_x86_64.whl#sha256=73482a223d577407c45685fde9d2a74ba42f0d8d9f6e1e95c08071dc55c47d7b"}
-torchvision = {url = "https://download.pytorch.org/whl/cpu/torchvision-0.15.2%2Bcpu-cp39-cp39-linux_x86_64.whl#sha256=e1e3988373afa29c813b140dbb5b7a074214813fd0ef97d2538966b9bd8d92d9"}
+python = "<3.13,>=3.9"
+torch = "^2.1.0"
+torchvision = "^0.16.0"
+pandas = "^2.1.1"
 numpy = "^1.26.0"
-matplotlib = "^3.8.0"
+matplotlib = "^3.6.0"
 tdqm = "^0.0.1"
 torchsummary = "^1.5.1"
-pandas = "^2.1.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+pytest = "^7.4.2"
+flake8 = "^6.1.0"
+isort = "^5.12.0"
+pre-commit = "^3.4.0"
+dvc = "^3.30.3"
+dvc-gdrive = "^2.20.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 90
+target-version = ["py38"]
+
+[tool.isort]
+line_length = 90
+lines_after_imports = 2
+
+[tool.flake8]
+max-line-length = 90
+exclude = [".git", "__pycache__"]
+max-complexity = 10
